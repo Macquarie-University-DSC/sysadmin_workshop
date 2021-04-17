@@ -79,3 +79,15 @@ level or on a professional level but depending on the amount of enterpriseness
 you might change your setup for example you could use github actions for open 
 source or university development as your dev ops pipeline, or you might use 
 ansible and jenkins like we will for something more enterprizy.
+
+# Steps to setup postgres
+
+1. Install postgres
+2. switch users with `sudo -iu postgres`
+3. Create a new user `exampleuser123` with `createuser --interactive` and set
+   all permissions to none.
+4. Create a new database with `createdatabase` called `todo_db`
+5. Go into psql with `psql` and type `ALTER ROLE exampleuser123 WITH PASSWORD 'password123';`
+6. Now run `GRANT ALL PERMISSIONS ON DATABASE todo_db TO exampleuser123;` and quit with ctrl+D
+
+
