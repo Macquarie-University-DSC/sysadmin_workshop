@@ -1,0 +1,129 @@
+body {
+    margin: 0;
+    background-color: #658DBD;
+    color: #FAFAFA;
+    font-family: Helvetica, Arial, sans-serif;
+}
+
+.nav {
+    background-color: #05386B;
+    width: 100%;
+    position: fixed;
+    top: 0;
+}
+
+.navbar {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.navbar li {
+    padding: 0.5em 2em 0.5em 2em; 
+    display: block;
+}
+
+.navbar li a {
+    text-decoration: none;
+    color: white;
+}
+
+.navbar li a:hover {
+    color: #ECAF44;
+}
+
+.logo {
+    font-weight: bold;
+    flex-grow: 1;
+}
+
+main {
+    margin-top: 3rem;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-items: center;
+}
+
+.banner {
+    object-fit: cover;
+    width: 100%;
+    height: 512px;
+}
+
+section {
+    padding: 3em 0em 2em 0em;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+#home {
+    justify-self: stretch;
+}
+
+.img-bar {
+    display: flex;
+    width: 90%;
+    justify-content: space-between;
+}
+
+.img-container {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.menu-image {
+    object-fit: cover;
+    width: 100%;
+    height: 256px;
+    padding: 2em;
+}
+
+a {
+    color: #FAFAFA;
+}
+
+a:hover {
+    color: #ECAF44;
+}
+
+.section-pop {
+    background-color: #FFFFF2;
+    color: black;
+}
+
+.text-section {
+    width: 1200px;
+}
+
+.mendoza-emphasis {
+    color: #ECAF44;
+}
+
+.toc li {
+    font-size: 1.2em;
+    padding: 0.5em;
+}
+
+p {
+    padding: 0.5em;
+    font-size: 1.2em;
+}
+
+table {
+    table-layout: fixed;
+}
+
+th, td {
+    padding: 1em;
+}
+
+tbody td {
+    text-align: center;
+}
+
