@@ -31,6 +31,45 @@ follow along which is not required, can just listen.
    them up will be covered, also doing these things are provider agnostic, i'll 
    probably use digital ocean, but i'll try provide instructions for all 
    platforms
+5. You NEED no way of getting around, some sort of unix shell. Instructions
+   below.
+
+### Windows Unix Shell
+
+In windows there are many options for getting unix shells. Putty is one, but 
+not recommended for system administration work. The two most recommended 
+options are to either use a Virtual Machine, but they can be quite tedious
+to set up, or you can use wsl. It is recommended that you use wsl.
+
+WSL stands for windows subsytem for linux, and is essentially a linux kernel
+embedded in windows allowing windows users access to the linux cli.
+
+In order to get it follow this guide https://docs.microsoft.com/en-us/windows/wsl/install-win10
+
+I would personally recommend downloading either Debian, Fedora or openSUSE for
+WSL.
+
+Debian has the most available packages, but you will only be a few here. 
+OpenSUSE Leap, is well regarded as one of the best linux distros with good
+default tools which would probably be my own personal choice. Then Fedora is
+very similar to CentOS which is what we will be using as the deployment
+environment, generally it is a good idea to have your development environment
+be as close to your deployment environment as possible.
+
+The default packages installed with wsl should be fine.
+
+### MacOS
+
+Make sure ssh is installed and enabled, just the client, not the server.
+
+It is recommended to install vim or a cli text editor.
+
+It is also recommended to install rsync for sysadmin work even if it isn't 
+goint to be user here.
+
+### Linux
+
+See the macos for packages, but everything else should be fine.
 
 ## Introduction: What is devops and continuous delivery
 
@@ -80,7 +119,7 @@ you might change your setup for example you could use github actions for open
 source or university development as your dev ops pipeline, or you might use 
 ansible and jenkins like we will for something more enterprizy.
 
-# Steps to setup postgres
+## Steps to setup postgres
 
 1. Install postgres
 2. switch users with `sudo -iu postgres`
@@ -91,3 +130,36 @@ ansible and jenkins like we will for something more enterprizy.
 6. Now run `GRANT ALL PERMISSIONS ON DATABASE todo_db TO exampleuser123;` and quit with ctrl+D
 
 
+## PART 1: Setting up a VPS CentOS Instance
+
+### Create accounts and 
+First create some account of a vps service, three are recommended
+  
+- Digital Ocean Droplet
+- Google CentOS Instance
+- Microsoft Azure
+
+### Create a VPS Instance
+
+#### Digital Ocean
+
+1. Get started with a droplet after you log in
+
+2. Select CentOS 7.6 as the distribution
+
+3. Select a relevant storage size, cpu and memory, as long as they are standard
+   shared cpu droplets, it doesn't matter which one.
+
+4. Choose any region, I shall be choosing singapore because it is closest.
+
+5. Choose Password instead of ssh, and don't select User Data, although if you
+   are familiar with these options then you can go ahead and select them.
+   Select a root password and continue.
+
+6. One droplet with any available hostname, shall be using the default hostname
+
+7. Make sure to select the backups option.
+
+8. Wait for the droplet to be created.
+
+### Setting up SSH
