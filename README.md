@@ -194,6 +194,8 @@ Setting up SSH is pretty easy
 
 ## Part 2: Deploy a static website with nginx, http2 and https with ansible+jenkins
 
+### More Users and SELinux
+
 ## Part 3: Configure building, testing and deployment for api with jenkins
 
-
+### Service Daemons, and more SELinux
