@@ -3,6 +3,7 @@ extern crate log;
 
 use std::env;
 
+use actix_cors::Cors;
 use actix_web::{middleware::Logger, App, HttpServer};
 use anyhow::Result;
 use dotenv::dotenv;
@@ -28,8 +29,11 @@ async fn main() -> Result<()> {
     // start server
     info!("Starting server at: 127.0.0.1:8080");
     HttpServer::new(move || {
+        let cors = Cors::permissive();
+
         App::new()
             .wrap(Logger::default())
+            .wrap(cors)
             .data(db_pool.clone())
             .service(handlers::create_todo)
             .service(handlers::read_all_todos)

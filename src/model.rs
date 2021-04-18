@@ -1,4 +1,4 @@
-use chrono::naive::serde::ts_seconds;
+use chrono::naive::serde::ts_milliseconds;
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 use sqlx::postgres::PgPool;
@@ -10,7 +10,7 @@ pub struct Todo {
     id: i32,
     description: String,
     is_complete: bool,
-    #[serde(with = "ts_seconds")]
+    #[serde(with = "ts_milliseconds")]
     issue_date: NaiveDateTime,
 }
 
@@ -18,7 +18,7 @@ pub struct Todo {
 pub struct NewTodo {
     description: String,
     is_complete: bool,
-    #[serde(with = "ts_seconds")]
+    #[serde(with = "ts_milliseconds")]
     issue_date: NaiveDateTime,
 }
 
