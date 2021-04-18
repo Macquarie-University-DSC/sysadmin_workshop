@@ -163,3 +163,18 @@ First create some account of a vps service, three are recommended
 8. Wait for the droplet to be created.
 
 ### Setting up SSH
+
+Setting up SSH is pretty easy
+
+1. run the command `ssh-keygen` and simply press enter through all the options.
+   note that if you would like to set a password that is fine.
+2. Next add ssh to your github account, click your profile icon in the top right,
+   select `settings`, then under SSH and GPG keys click New SSh key on the top right.
+   Copy the your key with the command `cat .ssh/id_rsa.pub` this will print your
+   PUBLIC key to the terminal, as `cat` prints files to the terminal, and `.ssh/id_rsa.pub`
+   is the location of where your key is stored. ssh keys have a private and a public
+   component. The private is the key and only you can access it, the public key is like
+   providing the lock that they key fits so never give your private key away.
+3. now in your server instance, find what the servers public ip is (remember to
+   provide instructions for this) and run the command `ssh-copy-id serverip` where
+   the server ip is the public ip address to your server.
