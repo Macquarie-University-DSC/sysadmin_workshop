@@ -162,6 +162,9 @@ First create some account of a vps service, three are recommended
 
 8. Wait for the droplet to be created.
 
+### Setting up your website url
+
+
 ### Setting up SSH
 
 Setting up SSH is pretty easy
@@ -178,3 +181,19 @@ Setting up SSH is pretty easy
 3. now in your server instance, find what the servers public ip is (remember to
    provide instructions for this) and run the command `ssh-copy-id serverip` where
    the server ip is the public ip address to your server.
+
+### Users and permissions
+
+### Firewall
+
+### ntp timezones
+
+### Jenkins
+
+### Ansible
+
+## Part 2: Deploy a static website with nginx, http2 and https with ansible+jenkins
+
+## Part 3: Configure building, testing and deployment for api with jenkins
+
+
