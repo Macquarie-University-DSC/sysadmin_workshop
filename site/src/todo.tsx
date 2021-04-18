@@ -1,6 +1,8 @@
 import React, { useState, useEffect, FormEvent } from 'react';
 import { render } from 'react-dom';
 
+const apiurl = 'http://localhost:8080';
+
 interface Todo {
     id: number;
     description: string;
@@ -18,7 +20,7 @@ const TodoApp = () => {
 
     useEffect(() => {
         const getTodos = async () => {
-            const response = await fetch('http://localhost:8080/todos', {
+            const response = await fetch(`${apiurl}/todos`, {
                 method: 'GET',
                 mode: 'cors',
             });
@@ -29,7 +31,7 @@ const TodoApp = () => {
     }, []);
 
     const postTodo = async () => {
-        const response = await fetch('http://localhost:8080/todo', {
+        const response = await fetch(`${apiurl}/todo`, {
             method: 'POST',
             mode: 'cors',
             headers: {
@@ -55,7 +57,7 @@ const TodoApp = () => {
 
     const handleToggleComplete = ({ id, description, is_complete }: Todo) => {
         const updateTodo = async () => {
-            const res = await fetch(`http://localhost:8080/todo/${id}`, {
+            const res = await fetch(`${apiurl}/todo/${id}`, {
                 method: 'PUT',
                 mode: 'cors',
                 headers: {
@@ -84,7 +86,7 @@ const TodoApp = () => {
 
     const handleDelete = ({ id }: Todo) => {
         const deleteTodo = async () => {
-            const res = await fetch(`http://localhost:8080/todo/${id}`, {
+            const res = await fetch(`${apiurl}/todo/${id}`, {
                 method: 'DELETE',
                 mode: 'cors'
             });
