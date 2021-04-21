@@ -225,10 +225,12 @@ In linux we have users and groups
 Linux contains a simple permissions model, each service has permission information, they
 can be read, written, or executed (like opening up an app in windows). You can
 view permission with the `ls -a` command, it appears with something of the form of
-`drwxrw-r--`, the first letter `d` tells us whether it is a directory or not. The
+`drwxrw-r-- user group`, the first letter `d` tells us whether it is a directory or not. The
 next three characters are in the form of `rwx` where `r` is the read permission, `w`
 is the write permission, `x` is the execute permission, and `-` says they do not have
-the given permission.
+the given permission. A file often belongs to a user and a group, the permissions tells us
+what permissions the user who owns the file has, what permissions the group who owns the
+file has and what permissions everyone else (others) has.
 
 Example:
 
@@ -237,7 +239,8 @@ Example:
 `r-x` - Read and execute but no write permission.
 
 Note that `rwx` is repeated three times, the first time is the read, write and execute
-permissions for a user, the second is for a group, and the third is for the system.
+permissions for a user, the second is for a group, and the third is for the entire system
+commonly called others.
 
 In linux we want to restrict access as much as possible to prevent things from
 having access to other things they shouldn't.
@@ -315,7 +318,35 @@ commands are available by reading the manual with `man firewall-cmd`.
 
 ### ntp timezones
 
+It is worthwhile to change the timezone of the server to the local timezone you are in especially
+dealing with databases and such. As a side note I often change the local timezone of my databases
+and api's to UTC and let region specific time information be handled on the client side.
+
+1. Find which timezone you want by running the command `sudo timedatectl list-timezones`
+2. Navigate with the j and the k keys `j` for up and `k` for down. You can also search with
+   the `/` command. for example `/Australia` for all regions in australia.
+3. Next set your region as default with `sudo timedatectl set-timezone region/timezone`, for
+   example, `sudo timedatectl set-timezone Australia/Sydney`
+4. Confirm with `sudo timedatectl`
+
 ### Jenkins
+
+We shall be installing jenkins, jenkins is what enables devops in our server. Generally speaking
+when creating a dev ops pipeline you need some sort of software to automate tasks. There are
+different kinds of devops tools some focusing on continuous integration, and some focusing on
+continuous delivery. Continuous integration is where you run automation on the testing and
+building phases of app building. It is more important for projects like desktop and mobile applications
+where you only need to release the binaries, so deployment isn't taken into consideration, examples of
+this are travis ci, and github actions. Notice these all are seperate services that integrate with github,
+on the other hand continuous delivery is the process of automating the deployment stage, quite often they
+have elements of continuous integration, but it is more important that every push you have a functioning
+web server. Examples of this are heroku, gitlab/github pages. The other important thing is that continuous
+delivery is pretty much always always part of the server in which you want to deploy on rather then being
+a seperate service as compared to github actions and travis. The most common application today used for
+continuous delivery is Jenkins because of it's free and open source nature, meaning that you can modify,
+extend and use it free of charge. Gitlab CI/CD is quickly taking off as well, and others incluce Atlassian
+Bamboo and Jetbrains Teamcity.
+
 
 ### Nginx
 
