@@ -218,6 +218,71 @@ Setting up SSH is pretty easy
 
 We done for now.
 
+### Note on systemctl and services
+
+All operating systems have software that runs in the background, they do things like
+make sure that the time is synchronised with the rest of the world, they provide
+resources for apps that run in the foreground. These are commonly called Daemon
+services.
+
+In windows it is kind of difficult from my experience (not a windows user tho) to
+create and manage services. If we want to make an app that runs when we start up our
+computers and runs in the background it can be quite tedious. Linux on the other hand
+has a tool that allows us to do this, it is called systemd and can be managed using
+systemd service files usually with the extensions of `.socket` and `.service` and
+managed with `systemctl`. Read more on the archwiki https://wiki.archlinux.org/index.php/systemd 
+
+Systemctl has the commands
+
+- `systemctl start servicename` to start a service called servicename
+- `systemctl stop servicename` to stop a service called servicename
+- `systemctl restart servicename` to stop then start a service called servicename
+- `systemctl status servicename` to see if the service activation actually worked
+- `systemctl enable servicename` to make sure that the service starts on system start up e.g. when
+  you turn on your computer or when you restart your computer.
+
+You can view the systemd logs with the `journalctl` command.
+
+`.socket` files often are services that start when they are needed, like a printing service only starts
+when you need to print something, and `.service` files are for services that run all the time.
+
+You can also specify services for specific users only but read the archwiki for that.
+
+### A note on the linux filestructure
+
+The linux filesystem structure is a standard created by the linux foundation and
+specified under the Filesystem Hierarchy Standard, more information can be found
+on wikipedia https://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard
+
+This isn't too important here except when we get to setting up nginx, and is a
+bit of a point of contention among system administrators. To understand why
+there are some important directories which we have to explain.
+
+The root `/` is where everything goes into, equivalent of the `C:` drive in
+windows.
+
+The `/etc` directory is where applications put there global configurations, that
+when they start all configuration options and files are mean't to be put here.
+
+The `/usr` directory specifies read only files used by apps, a common example
+would be icons, music or stuff in a game, they are read only because they never
+need to be modified.
+
+The `/var` directory is kind of like the read and write counter part of the
+`/usr` directory, things that do need to be modified but aren't configuration
+files often go here.
+
+The `/srv` directory is what causes the controversy, according to the linux
+standard, files which are mean't to be used for servers such as directories
+which are used as remote file storage like google drive kind of things go here,
+and static website files.
+
+In nginx it has become standard to put your website in the `/var/www` directory,
+this to me personally isn't the right place to put them, some system admins
+share this opinion while others feel that it is better to follow the standards
+of nginx for consistancy. Nearly all guides on the internet will use `/var/www`
+while we will be using `/srv/www` instead.
+
 ### Users and permissions
 
 In linux we have users and groups
@@ -274,7 +339,10 @@ so this can be considered more risky, in practice this rarely happens. On the ot
 
 ### Install required software
 
-1. Run command `sudo yum install vim-enhanced`
+1. Run command `sudo yum upgrade` to make sure we are downloading the latest versions.
+2. Run command `sudo yum install vim-enhanced`
+3. Run command `sudo yum install epel-release` to install the red hat extra packages.
+4. Run command `sudo yum install wget`
 
 ### Change ssh settings
 
@@ -316,7 +384,7 @@ commands are available by reading the manual with `man firewall-cmd`.
 5. similar to before open up a new terminal and see if you can still access the server.
 6. if it all works enable changes with `sudo systemctl enable firewalld`
 
-### ntp timezones
+### Timezones
 
 It is worthwhile to change the timezone of the server to the local timezone you are in especially
 dealing with databases and such. As a side note I often change the local timezone of my databases
@@ -347,8 +415,143 @@ continuous delivery is Jenkins because of it's free and open source nature, mean
 extend and use it free of charge. Gitlab CI/CD is quickly taking off as well, and others incluce Atlassian
 Bamboo and Jetbrains Teamcity.
 
+We shall be using Jenkins because it's free and it's a transferrable skill, with a lot of development jobs
+asking specifically for experience using Jenkins.
+
+For a comprehensive guide of jenkins, check out it's extensive documentation which we will be using for the
+instructions to set up nginx and jenkins. https://www.jenkins.io/doc/book/
+
+Jenkins runs on Java 8 at this point in time only sadly so don't try and use a more recent jdk.
+
+1. Enable the jenkins repository (tell centos where to download jenkins from) with `sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.io.key`
+2. Import the hash keys for jenkins repository (make sure that we are really downloading jenkins rather then virus') with `sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key`
+3. Upgrade all the repositories to make sure we are downloading the latest jenkins with `sudo yum upgrade`
+4. Finally install jenkins with `sudo yum install jenkins java-1.8.0-openjdk-devel`
+5. reload systemctl `sudo systemctl daemon-reload`
+6. Now start the jenkins service with `sudo systemctl start jenkins`
+7. Check if it worked with `sudo systemctl status jenkins`
+8. If everything worked correctly enable on startup with `sudo systemctl enable jenkins`
+
+We are done installing jenkins but we will revisit later for some configuration in the nginx section.
 
 ### Nginx
+
+Nginx is kind of like the server part of our server, we use it to manage routes
+and http access to our server. Most backend web frameworks like flask, django,
+actix, and others don't require it since they can serve the html files
+themselves. On the other hand I often use it anyway because it can be used to
+easily add advanced features like compression, https and http2 to our web pages,
+and in the example of jenkins, we can use jenkins by itself now, but we would
+need to access an ugly route like https://www.howgood.me:8080, nginx allows us
+to instead use the route in the form of https://jenkins.howgood.me
+
+#### Installing nginx
+
+Nginx is in the extras repo for centos which we already installed before.
+
+1. Simply type `sudo yum install nginx`
+2. Start nginx with `sudo systemctl start nginx`
+3. Check if nginx is working with `sudo systemctl status nginx`
+4. If everything works enable with `sudo systemctl enable nginx`
+5. Now add nginx to firewall with `sudo firewall-cmd --add-service=http`
+6. Also add https for later `sudo firewall-cmd --add-service=https`
+7. Save changes with `sudo firewall-cmd --runtime-to-permanent`
+
+#### Setting up blocks in nginx
+
+In nginx you can set up 'blocks' which point to specific domains, that means
+you can have multiple different domains that point to the same server!
+
+For example we will have 3 different blocks a `jenkins.yourdomain` block
+for jenkins, a `www.yourdomain` block for the static component, and a
+`api.yourdomain` block for our api. This isn't enabled by default.
+
+1. First make the directory we will put our html files in with `/srv/www`
+2. Give this directory read write and execute permissions for sudo user, read
+   and execute permissions for the group, and others with 
+   `sudo chmod 755 /srv/www` and check with `ls -l /srv`
+3. Make a server staging configurations directory with 
+   `sudo mkdir /etc/nginx/sites-available` this is where we write our server
+   configurations.
+4. Make a server deployment configurations directory with
+   `sudo mkdir /etc/nginx/sites-enabled` this is where our finished
+   configurations go.
+5. Run the command `sudo restorecon -v /srv/www` to add proper selinux policies
+   to this directory.
+6. Run the command `sudo restorecon -Rv /etc/nginx/sites-available`
+
+Now we need to modify the `/etc/nginx/nginx.conf` file, I will use the command
+`sudo vim /etc/nginx/nginx.conf` replace vim with nano if you aren't 
+comfortable with vim.
+
+Go to where is says `http {` and scroll to below the matching `}` bracket and
+add the following lines after the bracket.
+
+```
+include /etc/nginx/sites-enabled/*.conf;
+server_names_hash_bucket_size 64;
+```
+
+last step is to restart nginx to enable changes with `sudo systemctl restart nginx`
+
+#### Setting up jenkins with nginx
+
+Up until now we have been using vim and manually writing the files, but if you
+look at the file `nginx_configs/jenkins.yourdomain.me.conf` downloaded with the project
+it is quite big!
+
+Of course you are welcome to manually rewrite it all into the file
+`/etc/nginx/sites-available/jenkins.yourdomain.me.conf` but that is a pain so
+we are gonna cheat a little.
+
+We are gonna use rsync to copy the file to our server with
+
+`rsync nginx_configs/jenkins.yourdomain.me.conf yourusername@youdomain:~`
+
+Next we are gonna move the file with the `mv` command to 
+`/etc/nginx/sites-available/jenkins.yourdomain.conf` note that mv is the same
+as cut in windows.
+
+`sudo mv jenkins.yourdomain.me.conf /etc/nginx/sites-available/jenkins.yourdomain.conf`
+
+for example `sudo mv jenkins.yourdomain.me.conf /etc/nginx/sites-available/jenkins.howgood.me.conf`
+
+Now we have to make an error log directory
+
+`sudo mkdir /var/log/nginx/jenkins`
+
+Edit the file with `sudo vim /etc/nginx/sites-available/jenkins.yourdomain.conf`
+and change the line next to `server_name` to jenkins.yourdomain.me
+
+Add a symbolic link (look up symbolic link if you don't know what it means) with
+the sites-enabled folder.
+
+`sudo ln -s /etc/nginx/sites-available/jenkins.yourdomain.conf /etc/nginx/sites-enabled/jenkins.yourdomain.conf`
+
+Test with nginx test
+
+`sudo nginx -t`
+
+Now we gotta mess with permissions and users
+
+1. first change the user to root with `sudo chown root /etc/nginx/sites-available/jenkins.yourdomain.conf`
+2. now change the group to root with `sudo chgrp root /etc/nginx/sites-available/jenkins.yourdomain.conf`
+3. now we have to give the jenkins user the group nginx with `sudo gpasswd -a jenkins nginx`
+
+#### Selinux intro
+
+Now we have to experience our first times of extreme pain and anguish called selinux.
+
+Selinux is an extra permissions layer on top of the already existing linux
+permissions. Generally linux permissions are fine, but ages ago people added
+selinux just to be safe, on the scale we are now selinux is ok, but when you have
+a million microservices, sites and apps SElinux isn't really worth the effort.
+
+1. First view the existing selinux permissions with `ls -Z /etc/nginx/sites-available`
+2. add permissions for http services to forward other http services with
+   `sudo setsebool -P httpd_can_network_relay 1`
+3. Restart nginx with `sudo systemctl restart nginx` and open your browser
+   and navigate to http://jenkins.yourdomain
 
 ### Certbot and https
 
