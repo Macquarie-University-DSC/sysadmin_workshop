@@ -434,6 +434,28 @@ Jenkins runs on Java 8 at this point in time only sadly so don't try and use a m
 
 We are done installing jenkins but we will revisit later for some configuration in the nginx section.
 
+### A quick note on SELinux
+
+We will have our first experiences dealing with the pain in the ass that is 
+selinux. SELinux stands for Security Enhanced Linux and is like an extra more
+intense linux permissions layer. Instead of files having just read, write and
+execute permissions they also have policies about what they are allowed to do
+on the system and what they are used for. SELinux on the scale we are using here
+isn't too bad, and since it is so common for linux files and folders to be used
+for what they are, most of CentOS already has default SELinux policies that we
+need to enable or restore manually. As a website scales, SELinux becomes harder
+and harder. Learning SELinux is kind of a thing on it's own and so I wouldn't
+stress about it.
+
+SELinux has three modes
+
+- Enabled: if a selinux check fails the service cannot run
+- Permissive: if a selinux check fails an error is logged but service still runs
+- Disabled: selinux policies aren't checked at all.
+
+Generally it is a good idea to turn selinux to permissive, while deploying a
+server and change it to enabled later. https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/using_selinux/changing-selinux-states-and-modes_using-selinux
+
 ### Nginx
 
 Nginx is kind of like the server part of our server, we use it to manage routes
@@ -478,7 +500,6 @@ for jenkins, a `www.yourdomain` block for the static component, and a
    configurations go.
 5. Run the command `sudo restorecon -v /srv/www` to add proper selinux policies
    to this directory.
-6. Run the command `sudo restorecon -Rv /etc/nginx/sites-available`
 
 Now we need to modify the `/etc/nginx/nginx.conf` file, I will use the command
 `sudo vim /etc/nginx/nginx.conf` replace vim with nano if you aren't 
@@ -537,20 +558,11 @@ Now we gotta mess with permissions and users
 1. first change the user to root with `sudo chown root /etc/nginx/sites-available/jenkins.yourdomain.conf`
 2. now change the group to root with `sudo chgrp root /etc/nginx/sites-available/jenkins.yourdomain.conf`
 3. now we have to give the jenkins user the group nginx with `sudo gpasswd -a jenkins nginx`
-
-#### Selinux intro
-
-Now we have to experience our first times of extreme pain and anguish called selinux.
-
-Selinux is an extra permissions layer on top of the already existing linux
-permissions. Generally linux permissions are fine, but ages ago people added
-selinux just to be safe, on the scale we are now selinux is ok, but when you have
-a million microservices, sites and apps SElinux isn't really worth the effort.
-
-1. First view the existing selinux permissions with `ls -Z /etc/nginx/sites-available`
-2. add permissions for http services to forward other http services with
+4. Run the command `sudo restorecon -Rv /etc/nginx/sites-available` to add
+   the proper selinux policies for all the files in that directory.
+5. add selinux permissions for http services to forward other http services with
    `sudo setsebool -P httpd_can_network_relay 1`
-3. Restart nginx with `sudo systemctl restart nginx` and open your browser
+6. Restart nginx with `sudo systemctl restart nginx` and open your browser
    and navigate to http://jenkins.yourdomain
 
 ### Certbot and https
@@ -558,6 +570,8 @@ a million microservices, sites and apps SElinux isn't really worth the effort.
 ### Ansible
 
 ## Part 2: Deploy a static website with nginx, http2 and https with ansible+jenkins
+
+### Setting up Jenkins and github integration
 
 ### More Users, Groups and SELinux
 
